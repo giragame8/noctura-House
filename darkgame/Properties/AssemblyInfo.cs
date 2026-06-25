@@ -5,14 +5,15 @@ using System.Runtime.InteropServices;
 // Les informations générales relatives à un assembly dépendent de
 // l'ensemble d'attributs suivant. Changez les valeurs de ces attributs pour modifier les informations
 // associées à un assembly.
-[assembly: AssemblyTitle("darkgame")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("darkgame")]
-[assembly: AssemblyCopyright("Copyright ©Giragame  2026")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTitle("Noctura House")]
+[assembly: AssemblyDescription("Jeu narratif sombre dans une maison mystérieuse, exploration et ambiance psychologique.")]
+[assembly: AssemblyConfiguration("Release")]
+[assembly: AssemblyCompany("Gira studio")]
+[assembly: AssemblyProduct("Noctura House")]
+[assembly: AssemblyCopyright("Copyright © Giragame 2026")]
+[assembly: AssemblyTrademark("Noctura House")]
 [assembly: AssemblyCulture("")]
+
 
 // L'affectation de la valeur false à ComVisible rend les types invisibles dans cet assembly
 // aux composants COM. Si vous devez accéder à un type dans cet assembly à partir de
