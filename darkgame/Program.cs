@@ -30,12 +30,15 @@ namespace YuriDarkFantasy
         static int LARGEUR = 60;
         static int HAUTEUR = 25;
 
-        // Rayon de la lampe de poche (5 cases) multiplié par lui-même pour l'optimisation
         static int RAYON_VISION_CARRE = 5 * 5;
 
         static char[,] carte;
         static int yuriX, yuriY;
         static int objectifX, objectifY;
+
+        static int ennemiX, ennemiY;
+        static bool ennemiActif = false;
+
         static int niveau = 1;
 
         static Random random = new Random();
@@ -61,18 +64,22 @@ namespace YuriDarkFantasy
                 {
                     for (int x = 0; x < LARGEUR; x++)
                     {
-                        // Astuce Anti-Lag : Calcul de la distance au carré entre la case actuelle et Yuri
                         int distanceX = x - yuriX;
                         int distanceY = y - yuriY;
                         int distanceTotaleCarre = (distanceX * distanceX) + (distanceY * distanceY);
 
-                        // Si la case est DANS le cercle de lumière de la lampe de poche
                         if (distanceTotaleCarre <= RAYON_VISION_CARRE)
                         {
                             if (x == yuriX && y == yuriY)
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
                                 Console.Write("Y");
+                                Console.ResetColor();
+                            }
+                            else if (ennemiActif && x == ennemiX && y == ennemiY)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Magenta;
+                                Console.Write("M");
                                 Console.ResetColor();
                             }
                             else if (x == objectifX && y == objectifY)
@@ -92,17 +99,15 @@ namespace YuriDarkFantasy
                                 }
                                 else
                                 {
-                                    // Affichage du sol visible avec un point discret
                                     Console.ForegroundColor = ConsoleColor.DarkCyan;
                                     Console.Write(".");
                                     Console.ResetColor();
                                 }
                             }
                         }
-                        // Si la case est HORS du cercle de lumière (Dans le noir)
                         else
                         {
-                            Console.Write(" "); // On affiche juste du vide noir
+                            Console.Write(" ");
                         }
                     }
                     Console.WriteLine();
@@ -133,13 +138,99 @@ namespace YuriDarkFantasy
                     }
                 }
 
-                if (yuriX == objectifX && yuriY == objectifY)
+                if (ennemiActif)
+                {
+                    DeplacerEnnemi();
+
+                    if (yuriX == ennemiX && yuriY == ennemiY)
+                    {
+                        DeclencherScreamer();
+                        jeuEnCours = false;
+                    }
+                }
+
+                if (jeuEnCours && yuriX == objectifX && yuriY == objectifY)
                 {
                     niveau++;
                     GenererNiveauProcedural();
                     Console.Clear();
                 }
             }
+        }
+
+        static void DeplacerEnnemi()
+        {
+            int distX = Math.Abs(yuriX - ennemiX);
+            int distY = Math.Abs(yuriY - ennemiY);
+
+            int futurEnnemiX = ennemiX;
+            int futurEnnemiY = ennemiY;
+
+            if (distX > distY)
+            {
+                futurEnnemiX += (yuriX > ennemiX) ? 1 : -1;
+                if (carte[ennemiY, futurEnnemiX] != '#') ennemiX = futurEnnemiX;
+                else
+                {
+                    futurEnnemiY += (yuriY > ennemiY) ? 1 : -1;
+                    if (carte[futurEnnemiY, ennemiX] != '#') ennemiY = futurEnnemiY;
+                }
+            }
+            else
+            {
+                futurEnnemiY += (yuriY > ennemiY) ? 1 : -1;
+                if (carte[futurEnnemiY, ennemiX] != '#') ennemiY = futurEnnemiY;
+                else
+                {
+                    futurEnnemiX += (yuriX > ennemiX) ? 1 : -1;
+                    if (carte[ennemiY, futurEnnemiX] != '#') ennemiX = futurEnnemiX;
+                }
+            }
+        }
+
+        static void DeclencherScreamer()
+        {
+            Console.Clear();
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Clear();
+
+            string[] visageDemon = {
+                "                                                ",
+                "   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   ",
+                "  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  ",
+                "  @@@@                                    @@@@  ",
+                "  @@@@    @@@@@@@@            @@@@@@@@    @@@@  ",
+                "  @@@@  @@@@@@@@@@@@        @@@@@@@@@@@@  @@@@  ",
+                "  @@@@  @@@@@@@@@@@@        @@@@@@@@@@@@  @@@@  ",
+                "  @@@@    @@@@@@@@            @@@@@@@@    @@@@  ",
+                "  @@@@                                    @@@@  ",
+                "  @@@@                                    @@@@  ",
+                "  @@@@        @@@@@@@@@@@@@@@@@@@@        @@@@  ",
+                "  @@@@        @@@@@@@@@@@@@@@@@@@@        @@@@  ",
+                "  @@@@          @@@@@@@@@@@@@@@@          @@@@  ",
+                "  @@@@                                    @@@@  ",
+                "  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  ",
+                "   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   "
+            };
+
+            int startY = (HAUTEUR / 2) - (visageDemon.Length / 2);
+            for (int i = 0; i < visageDemon.Length; i++)
+            {
+                Console.SetCursorPosition((LARGEUR / 2) - (visageDemon[i].Length / 2), startY + i);
+                Console.WriteLine(visageDemon[i]);
+            }
+
+            Console.Beep(800, 200);
+            Console.Beep(1200, 200);
+            Console.Beep(2000, 600);
+
+            Console.ResetColor();
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\n\n\n\t\tYURI A ETE ATTRAPEE PAR LE DEMON...\n\n\t\tGAME OVER");
+            Console.WriteLine("\n\t\tAppuie sur une touche pour quitter.");
+            Console.ReadKey();
         }
 
         static void GenererNiveauProcedural()
@@ -198,6 +289,18 @@ namespace YuriDarkFantasy
 
                     if (pieces.Count >= maxPieces) break;
                 }
+            }
+
+            if (pieces.Count > 1)
+            {
+                Piece pieceEnnemi = pieces[pieces.Count - 2];
+                ennemiX = pieceEnnemi.CentreX;
+                ennemiY = pieceEnnemi.CentreY;
+                ennemiActif = true;
+            }
+            else
+            {
+                ennemiActif = false;
             }
         }
 
